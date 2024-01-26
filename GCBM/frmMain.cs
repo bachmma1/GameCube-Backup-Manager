@@ -7,8 +7,10 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -1161,7 +1163,13 @@ public partial class frmMain : Form
                 {
                     tbLog.AppendText($"[{utility.TimeStamp()}] {Resources.DownloadDiscCover} {gameID}.png{Environment.NewLine}");
                     var discCoverPath = sio.Path.Combine(COVERS_DIR, linkDomain, "disc", $"{gameID}.png");
-                    NET_CLIENT.DownloadFile(linkCoverDisc, GET_CURRENT_PATH + discCoverPath);
+
+                    var httpResult = await NET_CLIENT.GetAsync(linkCoverDisc);
+                    using (var resultStream = await httpResult.Content.ReadAsStreamAsync())
+                    using (var fileStream = File.Create(GET_CURRENT_PATH + discCoverPath))
+                    {
+                        resultStream.CopyTo(fileStream);
+                    }
                 }
             }
         }
@@ -1182,7 +1190,12 @@ public partial class frmMain : Form
                 {
                     tbLog.AppendText($"[{utility.TimeStamp()}] {Resources.Download3DCover} {gameID}.png{Environment.NewLine}");
                     var _3DCoverPath = sio.Path.Combine(COVERS_DIR, linkDomain, "3d", $"{gameID}.png");
-                    NET_CLIENT.DownloadFile(linkCover3D, GET_CURRENT_PATH + _3DCoverPath);
+                    var httpResult = await NET_CLIENT.GetAsync(linkCover3D);
+                    using (var resultStream = await httpResult.Content.ReadAsStreamAsync())
+                    using (var fileStream = File.Create(GET_CURRENT_PATH + _3DCoverPath))
+                    {
+                        resultStream.CopyTo(fileStream);
+                    }
                 }
             }
         }
@@ -1203,7 +1216,13 @@ public partial class frmMain : Form
                 {
                     tbLog.AppendText($"[{utility.TimeStamp()}] {Resources.Download2DCover} {gameID}.png{Environment.NewLine}");
                     var _2DCoverPath = sio.Path.Combine(COVERS_DIR, linkDomain, "2d", $"{gameID}.png");
-                    NET_CLIENT.DownloadFile(linkCover, GET_CURRENT_PATH + _2DCoverPath);
+
+                    var httpResult = await NET_CLIENT.GetAsync(linkCover);
+                    using (var resultStream = await httpResult.Content.ReadAsStreamAsync())
+                    using (var fileStream = File.Create(GET_CURRENT_PATH + _2DCoverPath))
+                    {
+                        resultStream.CopyTo(fileStream);
+                    }
                 }
             }
         }
@@ -1224,7 +1243,13 @@ public partial class frmMain : Form
                 {
                     tbLog.AppendText($"[{utility.TimeStamp()}] {Resources.DownloadFullCover} {gameID}.png{Environment.NewLine}");
                     var _fullCoverPath = sio.Path.Combine(COVERS_DIR, linkDomain, "full", $"{gameID}.png");
-                    NET_CLIENT.DownloadFile(linkCover, GET_CURRENT_PATH + _fullCoverPath);
+
+                    var httpResult = await NET_CLIENT.GetAsync(linkCover);
+                    using (var resultStream = await httpResult.Content.ReadAsStreamAsync())
+                    using (var fileStream = File.Create(GET_CURRENT_PATH + _fullCoverPath))
+                    {
+                        resultStream.CopyTo(fileStream);
+                    }
                 }
             }
         }
@@ -2575,7 +2600,8 @@ public partial class frmMain : Form
     private readonly IniFile CONFIG_INI_FILE = Program.ConfigFile;
     private readonly CultureInfo MY_CULTURE = new(CULTURE_CURRENT, false);
     private readonly ProcessStartInfo START_INFO = new();
-    private readonly WebClient NET_CLIENT = new();
+    //private readonly WebClient NET_CLIENT = new();
+    private readonly HttpClient NET_CLIENT = new ();
     private HttpWebResponse NET_RESPONSE;
     private bool WORKING;
     private string dgvGameListPath;
